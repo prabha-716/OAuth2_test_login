@@ -65,4 +65,9 @@ public class TestLoginController {
         );
     }
 
+    @GetMapping("/l")
+    public String logouted(){
+        return "Logout Succesfull";
+    }
+
 }

@@ -31,11 +31,18 @@ public class CustomOAuth2Service implements OAuth2UserService<OAuth2UserRequest,
         OAuth2User oauthUser = delegate.loadUser(request);
 
         String email = oauthUser.getAttribute("email");
+        String name = oauthUser.getAttribute("name");
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseGet( ()->{
+                        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setName(name);
+        newUser.setProvider("GOOGLE");
+        newUser.setRole("USER");   // no ROLE_ prefix in DB
+        return userRepository.save(newUser);
+            });
 
-        // 👇 Convert DB role to Spring role
         Set<GrantedAuthority> authorities = Set.of(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole())
         );
